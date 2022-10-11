@@ -41,7 +41,7 @@ def message(payload):
         }
 
 
-
+    return slack_web_client.chat_postMessage(**block_package)
 
 
 if __name__ == "__main__":
