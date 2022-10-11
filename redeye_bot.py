@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import slack
 from slack import WebClient
 from slackeventsapi import SlackEventAdapter
 from flask import Flask
@@ -12,7 +11,7 @@ load_dotenv()
 app = Flask(__name__)
 
 slack_web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
-slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_APP_TOKEN", "/slack/events", app))
+slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_APP_TOKEN"), "/slack/events", app)
 
 MESSAGE_BLOCK = {
     "type": "section",
@@ -21,7 +20,6 @@ MESSAGE_BLOCK = {
         "text": "",
     },
 }
-
 
 @slack_events_adapter.on("message")
 def message(payload):
@@ -39,7 +37,6 @@ def message(payload):
             "channel": channel_id,
             "blocks": [MESSAGE_BLOCK]
         }
-
 
     return slack_web_client.chat_postMessage(**block_package)
 
