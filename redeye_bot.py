@@ -1,45 +1,17 @@
 import os
-from pathlib import Path
-from dotenv import load_dotenv
-from slack import WebClient
-from slackeventsapi import SlackEventAdapter
-from flask import Flask
+# Use the package we installed
+from slack_bolt import App
 
-env_path = Path('.') / '.env'
-load_dotenv()
+# Initializes your app with your bot token and signing secret
+app = App(
+    token=os.environ.get("SLACK_BOT_TOKEN"),
+    signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
+)
 
-app = Flask(__name__)
-
-slack_web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
-slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_APP_TOKEN"), "/slack/events", app)
-
-MESSAGE_BLOCK = {
-    "type": "section",
-    "text": {
-        "type": "mrkdwn",
-        "text": "",
-    },
-}
-
-@slack_events_adapter.on("message")
-def message(payload):
-    event = payload.get("event", {})
-
-    text = event.get("text")
-
-    if "hello redeye" in text.lower():
-        channel_id = event.get("channel")
-        bot_response_message = "Hello there from redeyebot"
-
-        MESSAGE_BLOCK["text"]["text"] = bot_response_message
-
-        block_package = {
-            "channel": channel_id,
-            "blocks": [MESSAGE_BLOCK]
-        }
-
-    return slack_web_client.chat_postMessage(**block_package)
+# Add functionality here
+# @app.event("app_home_opened") etc
 
 
+# Start your app
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
+    app.start(port=int(os.environ.get("PORT", 3000)))
